@@ -23,6 +23,26 @@ body{
     overflow:hidden;
 }
 
+.top-left-btn{
+    position:fixed;
+    top:20px;
+    left:20px;
+    z-index:10;
+    background:#5a2d3f;
+    color:white;
+    padding:10px 16px;
+    border-radius:999px;
+    text-decoration:none;
+    font-size:14px;
+    box-shadow:0 8px 20px rgba(0,0,0,.12);
+    transition:transform .2s ease, box-shadow .2s ease;
+}
+
+.top-left-btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 12px 26px rgba(0,0,0,.16);
+}
+
 .flower{
     position:absolute;
     font-size:25px;
@@ -88,6 +108,47 @@ button{
     transition:.3s;
 }
 
+input[type="text"]{
+    width:100%;
+    margin-top:16px;
+    padding:14px 18px;
+    border:1px solid #f0d6e5;
+    border-radius:30px;
+    font-size:16px;
+    outline:none;
+}
+
+#saveName{
+    background:#5a2d3f;
+    color:white;
+    width:100%;
+    margin-top:16px;
+}
+
+#saveName:hover{
+    transform:scale(1.03);
+}
+
+.message{
+    margin-top:12px;
+    font-size:16px;
+    color:#5a2d3f;
+}
+
+.link-row{
+    margin-top:18px;
+}
+
+.link-row a{
+    color:#5a2d3f;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.link-row a:hover{
+    text-decoration:underline;
+}
+
 #yes{
     background:#ff8fc7;
     color:white;
@@ -114,12 +175,18 @@ button{
 </head>
 <body>
 
+<a href="admin/index.html" class="top-left-btn">Admin login</a>
+
 <div class="card">
 
     <!-- Replace puppy.jpg with your image -->
     <img src="https://cdn2.thecatapi.com/images/MTY3ODIyMQ.jpg" alt="cute">
 
     <h1>🌸 Will you go on a date with me? 🌸</h1>
+
+    <input id="nameInput" type="text" placeholder="Enter your name" aria-label="Enter your name">
+    <button id="saveName" type="button">Save name</button>
+    <div class="message" id="nameMessage"></div>
 
     <div class="buttons">
         <button id="yes">YES 💕</button>
@@ -170,6 +237,39 @@ document.getElementById("yes").onclick=()=>{
     document.querySelector("h1").innerHTML=
     "💖 Best decision ever! 💖";
 };
+
+const saveBtn=document.getElementById("saveName");
+const nameInput=document.getElementById("nameInput");
+const nameMessage=document.getElementById("nameMessage");
+
+function getSavedNames(){
+    return JSON.parse(localStorage.getItem("dateNames")||"[]");
+}
+
+function saveName(){
+    const name=nameInput.value.trim();
+    if(!name){
+        nameMessage.textContent="Please enter your name first.";
+        nameMessage.style.color="#b22e5b";
+        return;
+    }
+
+    const names=getSavedNames();
+    names.push(name);
+    localStorage.setItem("dateNames", JSON.stringify(names));
+
+    nameMessage.textContent=`Saved! Thank you, ${name}.`;
+    nameMessage.style.color="#5a2d3f";
+    nameInput.value="";
+}
+
+saveBtn.addEventListener("click", saveName);
+nameInput.addEventListener("keydown", e=>{
+    if(e.key==="Enter"){
+        e.preventDefault();
+        saveName();
+    }
+});
 </script>
 
 </body>

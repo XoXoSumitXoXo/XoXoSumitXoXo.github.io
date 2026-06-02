@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Date Names</title>
+<style>
+body{
+    font-family:Arial, sans-serif;
+    background:#fff5f7;
+    color:#5a2d3f;
+    padding:30px;
+    min-height:100vh;
+}
+.card{
+    max-width:520px;
+    margin:0 auto;
+    background:white;
+    padding:30px;
+    border-radius:25px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+h1{
+    margin-bottom:12px;
+}
+ul{
+    margin-top:20px;
+    padding-left:20px;
+}
+li{
+    margin-bottom:8px;
+    font-size:18px;
+}
+.empty{
+    margin-top:20px;
+    color:#7a4b60;
+}
+.actions{
+    margin-top:24px;
+}
+button{
+    border:none;
+    padding:12px 18px;
+    border-radius:24px;
+    background:#ff8fc7;
+    color:white;
+    cursor:pointer;
+    font-size:16px;
+    transition:.2s;
+}
+button:hover{
+    transform:scale(1.03);
+}
+a{
+    color:#5a2d3f;
+    text-decoration:none;
+}
+</style>
+</head>
+<body>
+<div class="card">
+    <h1>Admin view</h1>
+    <p id="statusText" role="status" aria-live="polite">Enter the admin password to view and manage submitted names.</p>
+    <p style="margin-top:10px; color:#7a4b60;">Names are added from the homepage and stored locally in the browser. Admin login is required to view or clear them.</p>
+    <button id="loginBtn" type="button" style="margin-top:12px; padding:10px 16px; border:none; border-radius:20px; background:#ff8fc7; color:white; cursor:pointer; font-size:16px;">Admin login</button>
+    <ul id="nameList" style="display:none;"></ul>
+    <div class="empty" id="emptyMessage" style="display:none;">No names submitted yet.</div>
+    <div class="actions" id="adminActions" style="display:none;">
+        <button id="clearBtn" type="button">Clear names</button>
+    </div>
+    <p style="margin-top:20px;"><a href="../index.html">Back to page</a></p>
+</div>
+<script>
+const ADMIN_PASSWORD = "741245";
+let adminAuthenticated = false;
+
+function showStatus(message, color="#5a2d3f"){
+    const status=document.getElementById("statusText");
+    status.textContent=message;
+    status.style.color=color;
+}
+
+function renderNames(){
+    const names=JSON.parse(localStorage.getItem("dateNames")||"[]");
+    const list=document.getElementById("nameList");
+    const empty=document.getElementById("emptyMessage");
+    list.innerHTML="";
+
+    if(names.length===0){
+        empty.style.display="block";
+        list.style.display="none";
+        document.getElementById("clearBtn").disabled = true;
+    } else {
+        empty.style.display="none";
+        list.style.display="block";
+        document.getElementById("clearBtn").disabled = false;
+        names.forEach((name,index)=>{
+            const item=document.createElement("li");
+            item.textContent=`${index+1}. ${name}`;
+            list.appendChild(item);
+        });
+    }
+}
+
+function enableAdminView(){
+    adminAuthenticated = true;
+    document.getElementById("adminActions").style.display="block";
+    showStatus("Admin access granted. Only admin can delete names.");
+    renderNames();
+}
+
+function authenticateAdmin(){
+    const password = prompt("Enter admin password:");
+    if(password===ADMIN_PASSWORD){
+        enableAdminView();
+    } else {
+        showStatus("Access denied. Only admin can view and delete names.", "#b22e5b");
+    }
+}
+
+document.getElementById("loginBtn").onclick = authenticateAdmin;
+
+document.getElementById("clearBtn").onclick=()=>{
+    if(!adminAuthenticated) return;
+    if(confirm("Delete all saved names? This cannot be undone.")){
+        localStorage.removeItem("dateNames");
+        renderNames();
+    }
+};
+</script>
+</body>
+</html>
